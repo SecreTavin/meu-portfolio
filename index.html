@@ -316,7 +316,7 @@
 
   <script>
     // --- LÓGICA DE BOOT (MS-DOS) ---
-    window.onload = function() {
+    document.addEventListener('DOMContentLoaded', function() {
       const bios = document.getElementById('bios-text');
       
       // Sequência de "carregamento"
@@ -327,9 +327,13 @@
       
       // Esconde a tela de boot e libera o sistema após 5 segundos
       setTimeout(() => { 
-        document.getElementById('boot-screen').style.display = 'none'; 
+        const bootScreen = document.getElementById('boot-screen');
+        if(bootScreen) {
+            bootScreen.style.opacity = '0';
+            setTimeout(() => { bootScreen.style.display = 'none'; }, 500); // Suavidade ao sumir
+        }
       }, 5000);
-    };
+    });
 
     // --- LÓGICA DA TELA AZUL (BSOD) ---
     function abrirBSOD() {
