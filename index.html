@@ -8,20 +8,16 @@
   <link rel="stylesheet" href="https://unpkg.com/98.css">
   
   <style>
-    /* Importar a fonte clássica do Windows (W95FA) */
     @font-face {
       font-family: 'W95FA';
       src: url('https://fonts.cdnfonts.com/s/72922/w95fa.woff') format('woff');
     }
 
-    /* O Desktop com o papel de parede clássico */
     body {
       margin: 0;
       height: 100vh;
       font-family: 'W95FA', Tahoma, Arial, sans-serif;
       overflow: hidden; 
-      
-      /* Fundo clássico: Adicionado aspas na URL para evitar erro com o espaço */
       background-color: #008080; 
       background-image: url('./wallpaper xp.png');
       background-size: cover;
@@ -29,18 +25,77 @@
       position: relative;
     }
 
-    /* Grid para os ícones na área de trabalho */
+    /* ---------------------------------------------------
+        TELA DE BOOT (MS-DOS)
+       --------------------------------------------------- */
+    #boot-screen {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background-color: black;
+      color: #00ff00;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 16px;
+      z-index: 999999;
+      padding: 20px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ---------------------------------------------------
+       TELA AZUL DA MORTE (BSOD)
+       --------------------------------------------------- */
+    #bsod-screen {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background-color: #0000aa;
+      color: white;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 18px;
+      z-index: 888888;
+      padding: 50px;
+      box-sizing: border-box;
+      display: none; /* Começa escondida */
+      cursor: pointer;
+    }
+
+    /* ---------------------------------------------------
+     ASSISTENTE VIRTUAL (CLIPPY)
+       --------------------------------------------------- */
+    #assistant-container {
+      position: fixed;
+      bottom: 50px;
+      right: 20px;
+      z-index: 9000;
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+    }
+
+    .speech-bubble {
+      background: #ffffe1;
+      border: 1px solid black;
+      padding: 10px;
+      border-radius: 8px;
+      font-family: Tahoma, Arial, sans-serif;
+      font-size: 12px;
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+      display: none; /* Controlado via JS */
+      max-width: 180px;
+      color: black;
+    }
+
     .desktop-icons {
       display: flex;
       flex-direction: column;
       gap: 25px;
       padding: 20px;
       position: absolute;
-      top: 0;
-      left: 0;
+      top: 0; left: 0;
     }
 
-    /* Estilo individual de cada ícone do desktop */
     .icon {
       display: flex;
       flex-direction: column;
@@ -52,132 +107,106 @@
       text-shadow: 1px 1px 2px black;
     }
 
-    .icon img {
-      width: 40px;
-      height: 40px;
-      margin-bottom: 5px;
-    }
+    .icon img { width: 40px; height: 40px; margin-bottom: 5px; }
+    .icon:active img { filter: brightness(0.5); }
 
-    .icon:active img {
-      filter: brightness(0.5); 
-    }
-
-    /* Configuração base das janelas (escondidas por padrão) */
     .window {
       position: absolute;
       display: none; 
       box-shadow: 2px 2px 10px rgba(0,0,0,0.5);
     }
 
-    /* Ajuste de tamanho específico para as janelas */
-    #janela-repos { width: 500px; top: 10%; left: 15%; }
-    #janela-curriculo { width: 800px; top: 5%; left: 25%; } 
-    #janela-monitoramento { width: 700px; top: 15%; left: 25%; }
-    #janela-systempulse { width: 380px; top: 5%; left: 60%; }
+    #janela-repos { width: 500px; top: 10%; left: 15%; z-index: 10; }
+    #janela-curriculo { width: 800px; top: 5%; left: 25%; z-index: 10; } 
+    #janela-monitoramento { width: 700px; top: 15%; left: 25%; z-index: 10; }
+    #janela-systempulse { width: 700px; top: 10%; left: 30%; z-index: 10; }
+    #janela-game { width: 600px; top: 20%; left: 35%; z-index: 10; }
     
-    .iframe-container {
-      height: 500px; 
-      width: 100%;
-      background: #fff;
-      border: inset 2px;
-      margin-top: 10px;
-    }
+    .iframe-container { height: 500px; width: 100%; background: #fff; border: inset 2px; margin-top: 10px; }
+    .folder-content { display: flex; flex-wrap: wrap; gap: 20px; padding: 15px; background: white; min-height: 200px; }
+    .repo-item { display: flex; flex-direction: column; align-items: center; width: 80px; text-align: center; cursor: pointer; font-size: 12px; }
+    .repo-item img { width: 32px; height: 32px; margin-bottom: 4px; }
 
-    /* Conteúdo interno da pasta de repositórios */
-    .folder-content {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      padding: 15px;
-      background: white;
-      min-height: 200px;
-    }
-
-    .repo-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      width: 80px;
-      text-align: center;
-      cursor: pointer;
-      font-size: 12px;
-    }
-    
-    .repo-item img { 
-      width: 32px; 
-      height: 32px; 
-      margin-bottom: 4px;
-    }
-
-    /* Barra de tarefas fake embaixo */
     .taskbar {
-      position: absolute;
-      bottom: 0;
-      width: 100%;
-      height: 35px;
-      background: #c0c0c0;
-      border-top: 2px solid #dfdfdf;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 5px;
-      box-sizing: border-box;
-      z-index: 9999;
+      position: absolute; bottom: 0; width: 100%; height: 35px; background: #c0c0c0;
+      border-top: 2px solid #dfdfdf; display: flex; align-items: center; justify-content: space-between;
+      padding: 0 5px; box-sizing: border-box; z-index: 9999;
     }
+    .clock { border: inset 2px; padding: 2px 8px; font-size: 12px; }
 
-    .clock {
-      border: inset 2px;
-      padding: 2px 8px;
-      font-size: 12px;
-    }
+    .window.maximized { top: 0 !important; left: 0 !important; width: 100vw !important; height: calc(100vh - 35px) !important; }
+    .window.maximized .iframe-container { height: calc(100vh - 120px) !important; }
 
-    /* Estilo para o Mockup do iPhone (System Pulse) */
-    .iphone-frame {
-      width: 300px;
-      height: 600px;
-      border: 14px solid #111;
-      border-radius: 36px;
-      overflow: hidden;
-      position: relative;
-      margin: 10px auto;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-      background-color: #000;
+    /* Estilos do Menu Iniciar */
+    #start-menu {
+      display: none; position: absolute; bottom: 35px; left: 5px; width: 260px;
+      background: #c0c0c0; border: outset 2px #dfdfdf; padding: 10px; z-index: 10000; 
+      box-shadow: 2px 2px 10px rgba(0,0,0,0.5); font-size: 14px; color: black;
     }
-
-    /* Estilo para quando a janela for maximizada */
-    .window.maximized {
-      top: 0 !important;
-      left: 0 !important;
-      width: 100vw !important;
-      height: calc(100vh - 35px) !important; /* Estica até a barra de tarefas */
-    }
-    
-    /* Faz o Iframe esticar junto com a tela maximizada */
-    .window.maximized .iframe-container {
-      height: calc(100vh - 120px) !important; 
-    }
+    .user-section { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; border-bottom: inset 2px #dfdfdf; padding-bottom: 10px; }
+    .profile-frame { width: 50px; height: 50px; border: inset 2px #dfdfdf; overflow: hidden; display: flex; align-items: center; justify-content: center; background: white; }
+    .profile-frame img { max-width: 100%; max-height: 100%; object-fit: cover; }
+    .menu-items ul { list-style: none; padding: 0; margin: 0; }
+    .menu-items li, .shutdown-item { display: flex; align-items: center; gap: 10px; padding: 8px 5px; cursor: pointer; text-decoration: none; color: black; }
+    .menu-items li:hover, .shutdown-item:hover { background-color: #000080; color: white; }
+    .menu-icon { width: 20px; display: flex; align-items: center; justify-content: center; }
+    .separator { height: 2px; background-color: #808080; margin: 5px 0; border-bottom: 1px solid #fff; }
+    .shutdown-item { border-top: outset 2px #dfdfdf; margin-top: 5px; font-weight: bold; }
+    .menu-items a { text-decoration: none; color: inherit; }
   </style>
 </head>
 <body>
+
+  <div id="boot-screen">
+    <div id="bios-text">
+      OctávioOS (C) Copyright 2026<br>
+      BIOS Date 04/19/26 18:28:45 Ver 1.0<br><br>
+      CPU: Engenheiro de Software Processor<br>
+      Speed: Ultra Fast<br>
+      Memory Test: 32768K OK<br>
+    </div>
+  </div>
+
+  <div id="bsod-screen" onclick="fecharBSOD()">
+    <div style="background: white; color: #0000aa; display: inline-block; padding: 2px 10px; font-weight: bold; margin-bottom: 30px;">
+      Windows
+    </div>
+    <p>Ocorreu um erro fatal em 0028:C0011E36 no VXD VMM(01).</p>
+    <p>Aviso: O nível de habilidade e lógica deste candidato excedeu o limite máximo da memória RAM.</p>
+    <br>
+    <p>* Pressione qualquer tecla (ou clique na tela) para reiniciar o sistema e contratar o desenvolvedor.</p>
+    <p>* Se o problema persistir, envie um email com uma proposta de emprego imediatamente.</p>
+  </div>
+
+  <div id="assistant-container">
+    <div class="speech-bubble" id="assistant-bubble">
+      Parece que você está analisando este currículo incrível. Deseja 
+      <a href="mailto:arrudaoctavio178@gmail.com" style="color: blue; font-weight: bold;">enviar um email</a> 
+      para ele agora?
+    </div>
+    <img src="https://win98icons.alexmeub.com/icons/png/help_question_mark-0.png" width="40" style="cursor: pointer;" onclick="toggleAssistant()" alt="Assistente">
+  </div>
+
 
   <div class="desktop-icons">
     <div class="icon" ondblclick="abrirJanela('janela-repos')">
       <img src="https://win98icons.alexmeub.com/icons/png/directory_closed-4.png" alt="Pasta">
       <span>Meus Projetos</span>
     </div>
-
     <div class="icon" ondblclick="abrirJanela('janela-curriculo')">
       <img src="https://win98icons.alexmeub.com/icons/png/html-0.png" alt="Documento">
       <span>Currículo.html</span>
+    </div>
+    
+    <div class="icon" ondblclick="abrirBSOD()">
+      <img src="https://win98icons.alexmeub.com/icons/png/msg_error-0.png" alt="Erro">
+      <span>Nao_Abra.exe</span>
     </div>
   </div>
 
   <div class="window" id="janela-repos">
     <div class="title-bar" id="drag-repos">
-      <div class="title-bar-text">
-        <img src="https://win98icons.alexmeub.com/icons/png/directory_open_file_mydocs-4.png" alt="icon" width="16" style="vertical-align: middle; margin-right: 4px;">
-        Meus Projetos
-      </div>
+      <div class="title-bar-text"><img src="https://win98icons.alexmeub.com/icons/png/directory_open_file_mydocs-4.png" width="16" style="vertical-align: middle; margin-right: 4px;"> Meus Projetos</div>
       <div class="title-bar-controls">
         <button aria-label="Minimize"></button>
         <button aria-label="Maximize" onclick="alternarMaximizacao('janela-repos')"></button>
@@ -186,34 +215,17 @@
     </div>
     <div class="window-body">
       <p style="margin: 0 0 10px 0;">C:\Users\Visitante\Projetos</p>
-      
       <div class="folder-content border">
-        
-        <div class="repo-item" ondblclick="abrirJanela('janela-monitoramento')">
-          <img src="https://win98icons.alexmeub.com/icons/png/network_internet_pcs_installer-2.png" alt="Exe">
-          <div>Monitoramento</div>
-        </div>
-
-        <div class="repo-item" ondblclick="abrirJanela('janela-systempulse')">
-          <img src="https://win98icons.alexmeub.com/icons/png/processor-0.png" alt="App">
-          <div>SystemPulse</div>
-        </div>
-
-        <div class="repo-item">
-          <img src="https://win98icons.alexmeub.com/icons/png/directory_closed-4.png" alt="Pasta">
-          <div>Projeto_3</div>
-        </div>
-
+        <div class="repo-item" ondblclick="abrirJanela('janela-monitoramento')"><img src="https://win98icons.alexmeub.com/icons/png/network_internet_pcs_installer-2.png"><div>Monitoramento</div></div>
+        <div class="repo-item" ondblclick="abrirJanela('janela-systempulse')"><img src="https://win98icons.alexmeub.com/icons/png/processor-0.png"><div>SystemPulse</div></div>
+        <div class="repo-item" ondblclick="abrirJanela('janela-game')"><img src="https://win98icons.alexmeub.com/icons/png/joystick-0.png"><div>GameDesvio.py</div></div>
       </div>
     </div>
   </div>
 
   <div class="window" id="janela-curriculo">
     <div class="title-bar" id="drag-curriculo">
-      <div class="title-bar-text">
-        <img src="https://win98icons.alexmeub.com/icons/png/html-0.png" alt="icon" width="16" style="vertical-align: middle; margin-right: 4px;">
-        Currículo - Internet Explorer
-      </div>
+      <div class="title-bar-text"><img src="https://win98icons.alexmeub.com/icons/png/html-0.png" width="16" style="vertical-align: middle; margin-right: 4px;"> Currículo - Internet Explorer</div>
       <div class="title-bar-controls">
         <button aria-label="Minimize"></button>
         <button aria-label="Maximize" onclick="alternarMaximizacao('janela-curriculo')"></button>
@@ -221,18 +233,13 @@
       </div>
     </div>
     <div class="window-body">
-      <div class="iframe-container">
-        <iframe src="./curriculo.html" width="100%" height="100%" style="border: none; background: white;"></iframe>
-      </div>
+      <div class="iframe-container"><iframe src="./curriculo.html" width="100%" height="100%" style="border: none; background: white;"></iframe></div>
     </div>
   </div>
 
   <div class="window" id="janela-monitoramento">
     <div class="title-bar" id="drag-monitoramento">
-      <div class="title-bar-text">
-        <img src="https://win98icons.alexmeub.com/icons/png/network_internet_pcs_installer-2.png" width="16" style="vertical-align: middle; margin-right: 4px;">
-        Monitoramento - Google Chrome
-      </div>
+      <div class="title-bar-text"><img src="https://win98icons.alexmeub.com/icons/png/network_internet_pcs_installer-2.png" width="16" style="vertical-align: middle; margin-right: 4px;"> Monitoramento - Google Chrome</div>
       <div class="title-bar-controls">
         <button aria-label="Minimize"></button>
         <button aria-label="Maximize" onclick="alternarMaximizacao('janela-monitoramento')"></button>
@@ -240,104 +247,212 @@
       </div>
     </div>
     <div class="window-body">
-      <div class="iframe-container">
-        <iframe src="https://example.com" width="100%" height="100%" style="border: none;"></iframe>
+      <div class="iframe-container" style="background: #222; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px; box-sizing: border-box;">
+        <video src="./sistema de monitoramento.mov" autoplay loop muted playsinline style="max-width: 100%; max-height: 85%; border: 1px solid #555; box-shadow: 0 4px 8px rgba(0,0,0,0.5);"></video>
+        <a href="https://github.com/SecreTavin/Sistema-de-monitoramento-de-filtros-de-manga-industriais" target="_blank" style="margin-top: 15px; background: #c0c0c0; border: 2px outset #fff; border-bottom-color: #888; border-right-color: #888; padding: 6px 20px; color: black; text-decoration: none; font-weight: bold; cursor: pointer; font-size: 14px;"><img src="https://win98icons.alexmeub.com/icons/png/world-1.png" width="16" style="vertical-align: middle; margin-right: 5px;"> Ver Código no GitHub</a>
       </div>
     </div>
   </div>
 
   <div class="window" id="janela-systempulse">
     <div class="title-bar" id="drag-systempulse">
-      <div class="title-bar-text">
-        <img src="https://win98icons.alexmeub.com/icons/png/processor-0.png" width="16" style="vertical-align: middle; margin-right: 4px;">
-        System Pulse Emulator
-      </div>
+      <div class="title-bar-text"><img src="https://win98icons.alexmeub.com/icons/png/processor-0.png" width="16" style="vertical-align: middle; margin-right: 4px;"> System Pulse - macOS App</div>
       <div class="title-bar-controls">
         <button aria-label="Minimize"></button>
         <button aria-label="Maximize" onclick="alternarMaximizacao('janela-systempulse')"></button>
         <button aria-label="Close" onclick="fecharJanela('janela-systempulse')"></button>
       </div>
     </div>
-    <div class="window-body" style="background-color: #cacaca;">
-      <div class="iphone-frame">
-         <iframe src="https://example.com" width="100%" height="100%" style="border: none; background: white;"></iframe>
+    <div class="window-body">
+      <div class="iframe-container" style="background: #222; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px; box-sizing: border-box;">
+        <video src="./system pulse.mov" autoplay loop muted playsinline style="max-width: 100%; max-height: 85%; border: 1px solid #555; box-shadow: 0 4px 8px rgba(0,0,0,0.5);"></video>
+        <a href="https://github.com/SecreTavin/System-Pulse" target="_blank" style="margin-top: 15px; background: #c0c0c0; border: 2px outset #fff; border-bottom-color: #888; border-right-color: #888; padding: 6px 20px; color: black; text-decoration: none; font-weight: bold; cursor: pointer; font-size: 14px;"><img src="https://win98icons.alexmeub.com/icons/png/world-1.png" width="16" style="vertical-align: middle; margin-right: 5px;"> Ver Código no GitHub</a>
       </div>
     </div>
   </div>
 
+  <div class="window" id="janela-game">
+    <div class="title-bar" id="drag-game">
+      <div class="title-bar-text"><img src="https://win98icons.alexmeub.com/icons/png/joystick-0.png" width="16" style="vertical-align: middle; margin-right: 4px;"> Game Desvio - Python Engine</div>
+      <div class="title-bar-controls">
+        <button aria-label="Minimize"></button>
+        <button aria-label="Maximize" onclick="alternarMaximizacao('janela-game')"></button>
+        <button aria-label="Close" onclick="fecharJanela('janela-game')"></button>
+      </div>
+    </div>
+    <div class="window-body">
+      <div class="iframe-container" style="background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px; box-sizing: border-box;">
+        <video src="./gamepython.mov" autoplay loop muted playsinline style="max-width: 100%; max-height: 85%; border: 2px solid lime;"></video>
+        <a href="https://github.com/SecreTavin/Game_desvio_python" target="_blank" style="margin-top: 15px; background: #c0c0c0; border: 2px outset #fff; border-bottom-color: #888; border-right-color: #888; padding: 6px 20px; color: black; text-decoration: none; font-weight: bold; cursor: pointer; font-size: 14px;"><img src="https://win98icons.alexmeub.com/icons/png/world-1.png" width="16" style="vertical-align: middle; margin-right: 5px;"> Ver Código no GitHub</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="start-menu">
+    <div class="user-section">
+      <div class="profile-frame"><img src="./ -3.jpg" alt="Foto"></div>
+      <div>
+        <div style="font-weight: bold;">Octávio Augusto</div>
+        <div style="font-size: 12px; color: #555;">Software Engineer</div>
+      </div>
+    </div>
+    <div class="separator"></div>
+    <div class="menu-items">
+      <ul>
+        <a href="https://github.com/SecreTavin" target="_blank"><li><div class="menu-icon"><img src="https://win98icons.alexmeub.com/icons/png/world-1.png" width="16"></div>Meu Perfil no GitHub</li></a>
+        <a href="https://www.linkedin.com/in/octavio-prazeres/" target="_blank"><li><div class="menu-icon"><img src="https://win98icons.alexmeub.com/icons/png/briefcase-2.png" width="16"></div>Conectar no LinkedIn</li></a>
+        <div class="separator"></div>
+        <div class="shutdown-item" onclick="shutdownAllWindows()"><div class="menu-icon"><img src="https://win98icons.alexmeub.com/icons/png/shut_down_cool-3.png" width="16"></div>Desligar Janelas...</div>
+      </ul>
+    </div>
+  </div>
+
   <div class="taskbar">
-    <button style="font-weight: bold; display: flex; align-items: center; gap: 5px;">
+    <button onclick="toggleStartMenu()" style="font-weight: bold; display: flex; align-items: center; gap: 5px;">
       <img src="https://win98icons.alexmeub.com/icons/png/windows_slanted-1.png" width="16"> Iniciar
     </button>
-    <div class="clock">18:50 PM</div>
+    <div class="clock">00:00 AM</div>
   </div>
 
   <script>
+    // --- LÓGICA DE BOOT (MS-DOS) ---
+    window.onload = function() {
+      const bios = document.getElementById('bios-text');
+      
+      // Sequência de "carregamento"
+      setTimeout(() => { bios.innerHTML += '<br><br>> Carregando Drivers do Kernel... [OK]'; }, 1000);
+      setTimeout(() => { bios.innerHTML += '<br>> Inicializando Banco de Dados MySQL... [OK]'; }, 2000);
+      setTimeout(() => { bios.innerHTML += '<br>> Configurando Ambiente Python & Swift... [OK]'; }, 3000);
+      setTimeout(() => { bios.innerHTML += '<br>> Iniciando Interface Gráfica...'; }, 4000);
+      
+      // Esconde a tela de boot e libera o sistema após 5 segundos
+      setTimeout(() => { 
+        document.getElementById('boot-screen').style.display = 'none'; 
+      }, 5000);
+    };
+
+    // --- LÓGICA DA TELA AZUL (BSOD) ---
+    function abrirBSOD() {
+      document.getElementById('bsod-screen').style.display = 'block';
+    }
+    
+    function fecharBSOD() {
+      document.getElementById('bsod-screen').style.display = 'none';
+    }
+
+    // --- LÓGICA DO ASSISTENTE ---
+    function toggleAssistant() {
+      const bubble = document.getElementById('assistant-bubble');
+      bubble.style.display = bubble.style.display === 'block' ? 'none' : 'block';
+    }
+
+    setInterval(() => {
+      const bubble = document.getElementById('assistant-bubble');
+      if(bubble.style.display !== 'block') {
+        bubble.style.display = 'block';
+        setTimeout(() => { bubble.style.display = 'none'; }, 6000); // Fica 6s na tela e some
+      }
+    }, 15000);
+
+
+    // janelas e menu iniciar
     function abrirJanela(id) {
       const janela = document.getElementById(id);
-      janela.style.display = 'block';
-      trazerParaFrente(janela);
+      if (janela) { janela.style.display = 'block'; trazerParaFrente(janela); }
     }
 
     function fecharJanela(id) {
-      document.getElementById(id).style.display = 'none';
-      // Garante que a janela perca o modo tela cheia ao ser fechada
-      document.getElementById(id).classList.remove('maximized');
+      const janela = document.getElementById(id);
+      if (janela) { janela.style.display = 'none'; janela.classList.remove('maximized'); }
+    }
+
+    function toggleStartMenu() {
+      const menu = document.getElementById('start-menu');
+      if (menu) {
+        if (menu.style.display === 'block') menu.style.display = 'none';
+        else { menu.style.display = 'block'; trazerParaFrente(menu); }
+      }
+    }
+
+    function shutdownAllWindows() {
+      const menu = document.getElementById('start-menu');
+      if (menu) menu.style.display = 'none';
+      const todasJanelas = document.querySelectorAll('.window');
+      todasJanelas.forEach(function(janela) { fecharJanela(janela.id); });
     }
 
     let zIndexAtual = 10;
     function trazerParaFrente(elemento) {
-      zIndexAtual++;
-      elemento.style.zIndex = zIndexAtual;
+      if (elemento) { zIndexAtual++; elemento.style.zIndex = zIndexAtual; }
     }
 
+    function alternarMaximizacao(id) {
+      const janela = document.getElementById(id);
+      if (janela) { janela.classList.toggle('maximized'); trazerParaFrente(janela); }
+    }
+
+    // arraste das pastas e janelas
     function tornarArrastavel(elementoJanela, elementoBarraTitulo) {
+      if (!elementoJanela || !elementoBarraTitulo) return;
       let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
       
-      elementoBarraTitulo.onmousedown = arrastarMouseDown;
+      elementoBarraTitulo.onmousedown = arrastarInicio;
+      elementoBarraTitulo.ontouchstart = arrastarInicio;
 
-      function arrastarMouseDown(e) {
-        e.preventDefault();
+      function arrastarInicio(e) {
+        if (elementoJanela.classList.contains('maximized')) return;
+        if(e.type !== 'touchstart') e.preventDefault();
+        
         trazerParaFrente(elementoJanela);
-        pos3 = e.clientX;
-        pos4 = e.clientY;
-        document.onmouseup = pararArrastar;
-        document.onmousemove = arrastarElemento;
+        let clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+        let clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+
+        pos3 = clientX; pos4 = clientY;
+        document.onmouseup = pararArrastar; document.ontouchend = pararArrastar;
+        document.onmousemove = arrastarElemento; document.ontouchmove = arrastarElemento;
       }
 
       function arrastarElemento(e) {
-        // Impede o arrasto se a janela estiver maximizada
         if (elementoJanela.classList.contains('maximized')) return;
+        let clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+        let clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+
+        pos1 = pos3 - clientX; pos2 = pos4 - clientY;
+        pos3 = clientX; pos4 = clientY;
         
-        e.preventDefault();
-        pos1 = pos3 - e.clientX;
-        pos2 = pos4 - e.clientY;
-        pos3 = e.clientX;
-        pos4 = e.clientY;
         elementoJanela.style.top = (elementoJanela.offsetTop - pos2) + "px";
         elementoJanela.style.left = (elementoJanela.offsetLeft - pos1) + "px";
       }
 
       function pararArrastar() {
-        document.onmouseup = null;
-        document.onmousemove = null;
+        document.onmouseup = null; document.onmousemove = null;
+        document.ontouchend = null; document.ontouchmove = null;
       }
 
       elementoJanela.onmousedown = () => trazerParaFrente(elementoJanela);
+      elementoJanela.ontouchstart = () => trazerParaFrente(elementoJanela);
     }
 
-    // Inicializando todas as 4 janelas para serem arrastáveis
     tornarArrastavel(document.getElementById('janela-repos'), document.getElementById('drag-repos'));
     tornarArrastavel(document.getElementById('janela-curriculo'), document.getElementById('drag-curriculo'));
     tornarArrastavel(document.getElementById('janela-monitoramento'), document.getElementById('drag-monitoramento'));
     tornarArrastavel(document.getElementById('janela-systempulse'), document.getElementById('drag-systempulse'));
+    tornarArrastavel(document.getElementById('janela-game'), document.getElementById('drag-game'));
 
-    // Função para alternar entre tela cheia e tamanho normal
-    function alternarMaximizacao(id) {
-      const janela = document.getElementById(id);
-      janela.classList.toggle('maximized'); // Adiciona ou remove a classe
-      trazerParaFrente(janela); // Garante que a janela maximizada fique na frente
+    // timer
+    function atualizarRelogio() {
+      const agora = new Date();
+      let horas = agora.getHours(); let minutos = agora.getMinutes();
+      const ampm = horas >= 12 ? 'PM' : 'AM';
+      horas = horas % 12; horas = horas ? horas : 12; 
+      minutos = minutos < 10 ? '0' + minutos : minutos; 
+      
+      const clk = document.querySelector('.clock');
+      if (clk) clk.innerText = horas + ':' + minutos + ' ' + ampm;
     }
+    
+    setInterval(atualizarRelogio, 1000);
+    atualizarRelogio();
   </script>
 
 </body>
