@@ -145,7 +145,13 @@
     }
     .user-section { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; border-bottom: inset 2px #dfdfdf; padding-bottom: 10px; }
     .profile-frame { width: 50px; height: 50px; border: inset 2px #dfdfdf; overflow: hidden; display: flex; align-items: center; justify-content: center; background: white; }
-    .profile-frame img { max-width: 100%; max-height: 100%; object-fit: cover; }
+    .profile-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transform: scale(1.15);
+    }
     .menu-items ul { list-style: none; padding: 0; margin: 0; }
     .menu-items li, .shutdown-item { display: flex; align-items: center; gap: 10px; padding: 8px 5px; cursor: pointer; text-decoration: none; color: black; }
     .menu-items li:hover, .shutdown-item:hover { background-color: #000080; color: white; }
@@ -164,6 +170,60 @@
       CPU: Engenheiro de Software Processor<br>
       Speed: Ultra Fast<br>
       Memory Test: 32768K OK<br>
+    </div>
+  </div>
+
+  <div class="window" id="popup-bemvindo" style="width: 320px; top: 30%; left: 40%; z-index: 1000; display: none;">
+    <div class="title-bar">
+      <div class="title-bar-text">Aviso do Sistema</div>
+      <div class="title-bar-controls">
+        <button aria-label="Close" onclick="fecharJanela('popup-bemvindo')"></button>
+      </div>
+    </div>
+    <div class="window-body">
+      <div style="display: flex; gap: 15px; align-items: center; margin-bottom: 15px;">
+        <img src="https://win98icons.alexmeub.com/icons/png/msg_information-0.png" width="32" height="32">
+        <p style="margin: 0; font-size: 13px;">Bem-vindo ao <strong>OctávioOS</strong>! <br><br>Dica: Dê um duplo clique na pasta <em>Meus Projetos</em> para explorar meus códigos-fonte.</p>
+      </div>
+      <div style="text-align: right; display: flex; justify-content: flex-end; gap: 10px;">
+        <button onclick="fecharJanela('popup-bemvindo')">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="window" id="popup-virus1" style="width: 350px; top: 15%; left: 55%; z-index: 1000; display: none;">
+    <div class="title-bar">
+      <div class="title-bar-text">Alerta de Segurança Crítico</div>
+      <div class="title-bar-controls">
+        <button aria-label="Close" onclick="fecharJanela('popup-virus1')"></button>
+      </div>
+    </div>
+    <div class="window-body">
+      <div style="display: flex; gap: 15px; align-items: center; margin-bottom: 15px;">
+        <img src="https://win98icons.alexmeub.com/icons/png/msg_warning-0.png" width="32" height="32">
+        <p style="margin: 0; font-size: 13px;"><strong>Atenção!</strong><br>Um Engenheiro de Software altamente qualificado foi detectado neste sistema. Contrate-o imediatamente para evitar perda de produtividade na sua equipe.</p>
+      </div>
+      <div style="text-align: center; display: flex; justify-content: center; gap: 10px;">
+        <button onclick="fecharJanela('popup-virus1')">Ignorar Risco</button>
+        <button style="font-weight: bold;" onclick="window.open('https://www.linkedin.com/in/octavio-prazeres/', '_blank')">Contratar Agora</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="window" id="popup-spam" style="width: 280px; top: 60%; left: 15%; z-index: 1000; display: none;">
+    <div class="title-bar">
+      <div class="title-bar-text">Parabéns!!!</div>
+      <div class="title-bar-controls">
+        <button aria-label="Close" onclick="fecharJanela('popup-spam')"></button>
+      </div>
+    </div>
+    <div class="window-body">
+      <div style="display: flex; gap: 15px; align-items: center; margin-bottom: 15px;">
+        <img src="https://win98icons.alexmeub.com/icons/png/world-1.png" width="32" height="32">
+        <p style="margin: 0; font-size: 13px; color: blue; text-decoration: underline; cursor: pointer;" onclick="window.open('https://github.com/SecreTavin', '_blank')">
+          Você é o visitante nº 1.000.000! Clique aqui para resgatar seu prêmio (ou apenas ver meu GitHub).
+        </p>
+      </div>
     </div>
   </div>
 
@@ -290,7 +350,7 @@
 
   <div id="start-menu">
     <div class="user-section">
-      <div class="profile-frame"><img src="./assets/img/ -3.jpg" alt="Foto"></div>
+      <div class="profile-frame"><img src="./assets/img/sailor-moon-pose.gif" alt="Gif"></div>
       <div>
         <div style="font-weight: bold;">Octávio Augusto</div>
         <div style="font-size: 12px; color: #555;">Software Engineer</div>
@@ -330,7 +390,23 @@
         const bootScreen = document.getElementById('boot-screen');
         if(bootScreen) {
             bootScreen.style.opacity = '0';
-            setTimeout(() => { bootScreen.style.display = 'none'; }, 500); // Suavidade ao sumir
+            setTimeout(() => { 
+                bootScreen.style.display = 'none'; 
+                
+                // Abre o pop-up de boas-vindas logo em seguida (5.5 segundos)
+                abrirJanela('popup-bemvindo');
+                
+                // Lança o Falso Vírus após 15 segundos!
+                setTimeout(() => {
+                  abrirJanela('popup-virus1');
+                }, 10000); // 10 segundos DEPOIS da tela inicial
+
+                // Lança o Falso Spam após 25 segundos!
+                setTimeout(() => {
+                  abrirJanela('popup-spam');
+                }, 20000); // 20 segundos DEPOIS da tela inicial
+
+            }, 500); 
         }
       }, 5000);
     });
@@ -442,6 +518,9 @@
     tornarArrastavel(document.getElementById('janela-monitoramento'), document.getElementById('drag-monitoramento'));
     tornarArrastavel(document.getElementById('janela-systempulse'), document.getElementById('drag-systempulse'));
     tornarArrastavel(document.getElementById('janela-game'), document.getElementById('drag-game'));
+    tornarArrastavel(document.getElementById('popup-bemvindo'), document.getElementById('popup-bemvindo').querySelector('.title-bar'));
+    tornarArrastavel(document.getElementById('popup-virus1'), document.getElementById('popup-virus1').querySelector('.title-bar'));
+    tornarArrastavel(document.getElementById('popup-spam'), document.getElementById('popup-spam').querySelector('.title-bar'));
 
     // timer
     function atualizarRelogio() {
